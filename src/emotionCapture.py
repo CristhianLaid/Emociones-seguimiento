@@ -3,6 +3,8 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 
+from constants.Emotion import EMOTION
+
 
 class EmotionCapture:
     def __init__(self, video_capture):
@@ -14,7 +16,7 @@ class EmotionCapture:
         # Carga el modelo de clasificación de emociones
         self.emotionModel = load_model("modelFEC.h5")
         # Lista de clases de emociones
-        self.classes = ['angry','disgust','fear','happy','neutral','sad','surprise']
+        self.classes = EMOTION
     
     def detect_emotions(self):
         #captura el video de manera en vivo
