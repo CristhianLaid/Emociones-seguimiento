@@ -7,8 +7,9 @@ from constants.Emotion import EMOTION
 
 
 class EmotionCapture:
-    def __init__(self, video_capture):
+    def __init__(self, video_capture, music_player):
         self.video_capture = video_capture
+        self.music_player = music_player
         # Carga el modelo de detección de rostros
         self.prototxtPath = "face_detector/deploy.prototxt"
         self.weightsPath = "face_detector/res10_300x300_ssd_iter_140000.caffemodel"
@@ -19,7 +20,8 @@ class EmotionCapture:
         self.classes = EMOTION
     
     def detect_emotions(self):
-        #captura el video de manera en vivo
+        print("---------hola")
+        self.music_player.agregar_canciones_aleatorias_deezer(10)
         while True:
             #Obtiene los frame de la camara 
             frame = self.video_capture.get_frame()
@@ -36,6 +38,7 @@ class EmotionCapture:
 
                 message = f"Emoción: {emotion}, Confianza: {confidence:.2f}%"
                 print(message)
+                self.music_player.play_music(emotion)
 
                 label = "{}: {:.0f}%".format(emotion, confidence)
                 

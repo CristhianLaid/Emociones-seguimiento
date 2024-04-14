@@ -2,22 +2,47 @@ import random
 import requests
 import librosa
 import tempfile
+import vlc
 
 
 class PlayMusic:
     def __init__(self):
         self.blink_count = 0
         self.canciones = []
+        self.reproductor = vlc.MediaPlayer()
+    
+    def play_music(self, emotion):
+        """
+        Reproduce música asociada con la emoción especificada.
+        """
+        song_to_play = self._get_random_song_by_emotion(emotion)
         
+        if song_to_play:
+            print(f"Reproduciendo música para la emoción '{emotion}': {song_to_play['titulo']}")
+            # Reproducir la canción utilizando el enlace de Deezer
+            self.reproductor.set_mrl(song_to_play['preview'])
+            self.reproductor.play()  # Iniciar la reproducción
+        else:
+            print(f"No se encontraron canciones para la emoción '{emotion}'")
+
+        
+    
     def reproducir_pausar(self):
         if self.blink_count % 2 == 1:
             # pyautogui.press('space')
             print("pausa")
             
-    def cambiar_cancion(self):
+    def cambiar_cancion(self, emotion):
         if self.blink_count % 3 == 0:
-            cancion_actual = random.choice(self.canciones)
-            print(cancion_actual)
+            song_to_play = self._get_random_song_by_emotion(emotion)
+            if song_to_play:
+                print(f"Reproduciendo música para la emoción '{emotion}': {song_to_play['titulo']}")
+                self.reproductor.set_mrl(song_to_play['preview'])
+                self.reproductor.play()
+            else:
+                print(f"No se encontraron canciones para la emoción '{emotion}'")
+                
+            
     
     def incrementar_blink_count(self):
         self.blink_count += 1
@@ -61,7 +86,7 @@ class PlayMusic:
                     'preview': track['preview'] if 'preview' in track else None,
                     'duracion': duracion,
                     'tempo': tempo,
-                    'emocion': emocion,
+                    'emotion': emocion,
                     'imagen': track['album']['cover_medium']
                 }
                 self.canciones.append(cancion)
@@ -89,10 +114,17 @@ class PlayMusic:
         else:
             return 'surprise'
             
+    def _get_random_song_by_emotion(self, emotion):
+        songs_emotion = [cancion for cancion in self.canciones if cancion['emotion'] == emotion]
+        if songs_emotion:
+            return random.choice(songs_emotion)
+        return None
+                
+        
 # Ejemplo de uso
-if __name__ == "__main__":
-    reproductor = PlayMusic()
-    # Agregar 10 canciones aleatorias de Deezer a la lista de canciones
-    reproductor.agregar_canciones_aleatorias_deezer(10)
+# if __name__ == "__main__":
+#     reproductor = PlayMusic()
+#     # Agregar 10 canciones aleatorias de Deezer a la lista de canciones
+#     reproductor.agregar_canciones_aleatorias_deezer(10)
 
 
