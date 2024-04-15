@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
+import time
+import schedule
+import threading
 
 from constants.Emotion import EMOTION
 
@@ -20,9 +23,10 @@ class EmotionCapture:
         self.classes = EMOTION
     
     def detect_emotions(self):
-        print("---------hola")
         self.music_player.agregar_canciones_aleatorias_deezer(10)
-        while True:
+        # Captura de emociones durante 5 segundos
+        start_time = time.time()
+        while time.time() - start_time <= 5:
             #Obtiene los frame de la camara 
             frame = self.video_capture.get_frame()
             
@@ -51,8 +55,12 @@ class EmotionCapture:
             #Se sale con el esc
             if cv2.waitKey(1) == 27:
                 break
-                
-            
+        # while True:
+        #     frame = self.video_capture.get_frame()
+        #     cv2.imshow('Frame', frame)
+        #     if cv2.waitKey(1) == 27:
+        #             break
+                     
     def predict_emotions(self, frame):
         blob = cv2.dnn.blobFromImage(frame, 1.0, (224, 224), (104.0, 177.0, 123.0))
         
@@ -84,6 +92,23 @@ class EmotionCapture:
                 preds.append(pred[0])
         return (locs, preds)
         
+    def capture_emotion_for_x_seconds_hourly(self):
+        print("capturing")
+        
+        self.detect_emotions()
+        # Programa la detección de emociones cada minuto
+        schedule.every(1).minutes.do(self.detect_emotions)
+
+        # Ejecuta la programación continua para ejecutar tareas periódicas
+        while True:
+            schedule.run_pending()
+            # Captura el fotograma actual para el procesamiento en tiempo real
+            frame = self.video_capture.get_frame()
+            # Muestra el video en tiempo real
+            cv2.imshow("Frame", frame)
+            # Se sale con el esc
+            if cv2.waitKey(1) == 27:
+                break
         
         
              

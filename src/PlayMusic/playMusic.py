@@ -3,6 +3,9 @@ import requests
 import librosa
 import tempfile
 import vlc
+import threading
+import schedule
+import time
 
 
 class PlayMusic:
@@ -25,8 +28,6 @@ class PlayMusic:
         else:
             print(f"No se encontraron canciones para la emoción '{emotion}'")
 
-        
-    
     def reproducir_pausar(self):
         if self.blink_count % 2 == 1:
             # pyautogui.press('space')
@@ -42,8 +43,6 @@ class PlayMusic:
             else:
                 print(f"No se encontraron canciones para la emoción '{emotion}'")
                 
-            
-    
     def incrementar_blink_count(self):
         self.blink_count += 1
         print("Blink count: ", self.blink_count)
@@ -120,6 +119,7 @@ class PlayMusic:
             return random.choice(songs_emotion)
         return None
                 
+        
         
 # Ejemplo de uso
 # if __name__ == "__main__":
