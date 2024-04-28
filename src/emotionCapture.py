@@ -2,11 +2,17 @@ import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
+import time
+import schedule
+import threading
+
+from constants.Emotion import EMOTION
 
 
 class EmotionCapture:
-    def __init__(self, video_capture):
+    def __init__(self, video_capture, music_player):
         self.video_capture = video_capture
+        self.music_player = music_player
         # Carga el modelo de detección de rostros
         self.prototxtPath = "face_detector/deploy.prototxt"
         self.weightsPath = "face_detector/res10_300x300_ssd_iter_140000.caffemodel"
@@ -14,11 +20,13 @@ class EmotionCapture:
         # Carga el modelo de clasificación de emociones
         self.emotionModel = load_model("modelFEC.h5")
         # Lista de clases de emociones
-        self.classes = ['angry','disgust','fear','happy','neutral','sad','surprise']
+        self.classes = EMOTION
     
     def detect_emotions(self):
-        #captura el video de manera en vivo
-        while True:
+        self.music_player.agregar_canciones_aleatorias_deezer(10)
+        # Captura de emociones durante 5 segundos
+        start_time = time.time()
+        while time.time() - start_time <= 5:
             #Obtiene los frame de la camara 
             frame = self.video_capture.get_frame()
             
@@ -34,6 +42,7 @@ class EmotionCapture:
 
                 message = f"Emoción: {emotion}, Confianza: {confidence:.2f}%"
                 print(message)
+                self.music_player.play_music(emotion)
 
                 label = "{}: {:.0f}%".format(emotion, confidence)
                 
@@ -46,8 +55,12 @@ class EmotionCapture:
             #Se sale con el esc
             if cv2.waitKey(1) == 27:
                 break
-                
-            
+        # while True:
+        #     frame = self.video_capture.get_frame()
+        #     cv2.imshow('Frame', frame)
+        #     if cv2.waitKey(1) == 27:
+        #             break
+                     
     def predict_emotions(self, frame):
         blob = cv2.dnn.blobFromImage(frame, 1.0, (224, 224), (104.0, 177.0, 123.0))
         
@@ -79,6 +92,23 @@ class EmotionCapture:
                 preds.append(pred[0])
         return (locs, preds)
         
+    def capture_emotion_for_x_seconds_hourly(self):
+        print("capturing")
+        
+        self.detect_emotions()
+        # Programa la detección de emociones cada minuto
+        schedule.every(1).minutes.do(self.detect_emotions)
+
+        # Ejecuta la programación continua para ejecutar tareas periódicas
+        while True:
+            schedule.run_pending()
+            # Captura el fotograma actual para el procesamiento en tiempo real
+            frame = self.video_capture.get_frame()
+            # Muestra el video en tiempo real
+            cv2.imshow("Frame", frame)
+            # Se sale con el esc
+            if cv2.waitKey(1) == 27:
+                break
         
         
              
