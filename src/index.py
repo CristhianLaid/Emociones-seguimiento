@@ -1,10 +1,7 @@
-import cv2
-import imutils
-import time
-
 from videoCapture import VideoCapture
 from emotionCapture import EmotionCapture
 from PlayMusic.playMusic import PlayMusic
+
 
 
 def main():
